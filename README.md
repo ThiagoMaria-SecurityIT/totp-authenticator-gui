@@ -65,6 +65,9 @@ A desktop GUI application for generating Time-based One-Time Passwords (TOTP) fo
    python authenticator_gui.py
    ```
 
+> [!Tip]
+> Yes, you have to run it with "python" and not "py"  
+
 ## Usage
 
 ### ⚠️ CRITICAL WARNING - Account Lockout Prevention
