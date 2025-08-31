@@ -32,7 +32,7 @@ A desktop GUI application for generating Time-based One-Time Passwords (TOTP) fo
 - **Encrypted Backups** - Export accounts with separate password protection
 - **Safety Warnings** - Built-in warnings prevent accidental account lockouts
 - **Local Storage** - No cloud dependencies, all data stays on your device  
-<img width="400" height="350" alt="image" src="https://github.com/user-attachments/assets/edd1a1d7-af4e-4419-b28b-9311b5b16d72" /> <img width="500" height="400" alt="image" src="https://github.com/user-attachments/assets/da8deaed-3073-4433-9663-b58126310d8b" />  
+<img width="380" height="350" alt="image" src="https://github.com/user-attachments/assets/edd1a1d7-af4e-4419-b28b-9311b5b16d72" /> <img width="470" height="380" alt="image" src="https://github.com/user-attachments/assets/da8deaed-3073-4433-9663-b58126310d8b" />  
 
   
 
