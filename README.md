@@ -4,12 +4,19 @@ A desktop GUI application for generating Time-based One-Time Passwords (TOTP) fo
 
 ![Python](https://img.shields.io/badge/python-3.7+-blue.svg)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)
-![License](https://img.shields.io/badge/license-MIT-green.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)  
+
+<img width="855" height="572" alt="image" src="https://github.com/user-attachments/assets/06a895f0-a236-40e8-aa7c-bca4046ae194" />  
+
 
 > [!CAUTION]
-> - **NEVER remove accounts from this authenticator without first disabling 2FA on the actual service.**  
-> - **Doing so will result in permanent lockout from your accounts.**  
-> - **Use only the examples accounts below**
+> - **NEVER remove accounts from this authenticator without first disabling 2FA on the actual service (Google account, Amazon account, Github account, etc).**  
+> - **Doing so will result in permanent lockout from your accounts.**
+> - **You can use the example accounts [here](#for-testing-only) to test this tool**   
+
+> [!WARNING]
+> - The Restore feature erases all the current accounts  
+> - Backup your current accounts before Restore or you will lost them forever  
 
 ## Features
 
@@ -24,7 +31,10 @@ A desktop GUI application for generating Time-based One-Time Passwords (TOTP) fo
 - **Master Password Protection** - Secure access to your authentication codes
 - **Encrypted Backups** - Export accounts with separate password protection
 - **Safety Warnings** - Built-in warnings prevent accidental account lockouts
-- **Local Storage** - No cloud dependencies, all data stays on your device
+- **Local Storage** - No cloud dependencies, all data stays on your device  
+<img width="400" height="350" alt="image" src="https://github.com/user-attachments/assets/edd1a1d7-af4e-4419-b28b-9311b5b16d72" /> <img width="500" height="400" alt="image" src="https://github.com/user-attachments/assets/da8deaed-3073-4433-9663-b58126310d8b" />  
+
+  
 
 ### User Interface
 - **Modern Dark Theme** - Easy on the eyes with professional appearance
@@ -36,6 +46,7 @@ A desktop GUI application for generating Time-based One-Time Passwords (TOTP) fo
 - **Safety Check System** - Service-specific removal instructions with direct links
 - **Enhanced Removal Warnings** - Multi-step confirmation prevents accidental deletions
 - **Account Backup System** - Encrypted export functionality before making changes
+
 
 ## Requirements
 
@@ -68,23 +79,29 @@ A desktop GUI application for generating Time-based One-Time Passwords (TOTP) fo
 > [!Tip]
 > Yes, you have to run it with "python" and not "py"  
 
+4. **If you prefer you can use the CLI version:***
+   ```bash
+   python authenticator.py
+   ```
+   
 ## Usage
 
-### ⚠️ CRITICAL WARNING - Account Lockout Prevention
+>[!Tip]
+>After click in the Backup button you have to write the password in the CLI too
+>Confirm your Backup password in the CLI too  
 
-> [!CAUTION]  
-> - NEVER remove accounts from this authenticator without first disabling 2FA on the actual service.  
-> - Doing so will result in permanent lockout from your accounts.  
+### ⚠️ CRITICAL WARNING - 🔒 Account Lockout Prevention 🔒   
 
 **Correct procedure:**
-1. Go to the service's security settings (use our Safety Check feature for links)
-2. Disable 2FA or switch to a different authenticator method
+1. Go to the service's security settings, for example Google, Amazon, Github (use our Safety Check feature for links)
+2. Disable 2FA or switch to a different authenticator method at Google, Github or Amazon security settings for MFA or 2FA (disable there first)  
 3. Test that you can log in without this tool
 4. Only then remove the account from this authenticator
 
 > [!CAUTION]
+> - NEVER remove accounts from this authenticator without first disabling 2FA on the actual service (Google, Github, Amazon, etc).  
 > **If you remove an account from this tool first, you may lose access to your account forever.**  
-> **Use example accounts below for demonstration purposes only, never for production**  
+> **Use example accounts below for demonstration purposes only, never for production**
 
 ### First Time Setup
 1. Launch the application
@@ -99,7 +116,8 @@ A desktop GUI application for generating Time-based One-Time Passwords (TOTP) fo
 
 The secret key is the text string you get when setting up 2FA (usually shown alongside the QR code).
 
-**For Testing Only:** Use these example accounts for demonstration purposes only, never for production:
+### **For Testing Only:🧪**   
+Use these example accounts for demonstration purposes only, never for production:  
 - **Google Test** with secret `JBSWY3DPEHPK3PXP`
 - **GitHub Test** with secret `GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ`
 
@@ -115,6 +133,20 @@ The secret key is the text string you get when setting up 2FA (usually shown alo
 3. **Store backups securely** in a different location
 4. **Use a strong master password** you won't forget
 
+### How to Restore Your Accounts:  
+>[!Warning]
+> - The Restore feature erases all current accounts in this tool  
+> - Before restore, **do a backup**  
+> - Merge accounts is not implemented   
+
+🖥️ GUI Method (Easy):
+1. Click "📂 Restore" button in the GUI
+2. Select your backup file (usually named like totp_backup_20241129_143052.enc)
+3. Enter the backup password you used when creating the backup
+4. Confirm the restore - it shows you which accounts will be restored
+   
+Done! Your accounts are back with all their secrets
+
 ## Interface Overview
 
 ### Main Window
@@ -122,7 +154,7 @@ The secret key is the text string you get when setting up 2FA (usually shown alo
 - **Account List**: Real-time TOTP codes with account names
 - **Timer Display**: Shows time remaining until next code generation
 - **Progress Bar**: Visual countdown with color indicators
-- **Control Buttons**: Add, Remove, Backup, and Safety Check functions
+- **Control Buttons**: Add, Remove, Backup, Restore and Safety Check functions
 - **Status Bar**: Current application status and account count
 
 ### Color Indicators
@@ -177,6 +209,13 @@ All files use restrictive permissions (600) for security.
 - **Account lockout risk**: Removing accounts from this tool before disabling 2FA on the service will cause permanent lockout
 - **Store backups safely** - they contain all your authentication secrets
 - **Example accounts only**: The test accounts provided in this documentation are for demonstration only
+
+## Troubleshooting issues
+- If you do not enter the correct password when opening this tool, it will open without any account
+- You can find the folder .totp_authenticator searching %USERPROFILE% in your windows
+- The folder .totp_authenticator has the session password, erasing the 2 files will not grant you access to the tool session without password
+- Erase .totp_authenticator only if you backup your current session or you will lost all accounts
+ - Backup is the key for any authenticator tool
 
 ## Contributing
 
