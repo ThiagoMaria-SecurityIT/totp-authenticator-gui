@@ -303,6 +303,131 @@ class TOTPAuthenticator:
             print(f"Error creating backup: {str(e)}")
             return False
     
+    def restore_from_backup(self, backup_file):
+        """Restore accounts from an encrypted backup file"""
+        try:
+            if not os.path.exists(backup_file):
+                print(f"Error: Backup file '{backup_file}' not found")
+                return False
+            
+            print(f"🔓 Restoring accounts from backup: {backup_file}")
+            print()
+            
+            # Read backup file
+            with open(backup_file, 'r') as f:
+                backup_data = json.load(f)
+            
+            # Verify backup format
+            if 'salt' not in backup_data or 'data' not in backup_data:
+                print("Error: Invalid backup file format")
+                return False
+            
+            # Get backup password
+            print("Enter the password used to encrypt this backup:")
+            backup_password = getpass.getpass("Backup password: ").strip()
+            
+            if not backup_password:
+                print("Error: Password cannot be empty")
+                return False
+            
+            # Decrypt backup
+            import base64
+            from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+            from cryptography.hazmat.primitives import hashes
+            from cryptography.fernet import Fernet
+            
+            # Decode salt and encrypted data
+            backup_salt = base64.b64decode(backup_data['salt'])
+            encrypted_data = base64.b64decode(backup_data['data'])
+            
+            # Derive decryption key
+            kdf = PBKDF2HMAC(
+                algorithm=hashes.SHA256(),
+                length=32,
+                salt=backup_salt,
+                iterations=100000,
+            )
+            backup_key = base64.urlsafe_b64encode(kdf.derive(backup_password.encode()))
+            backup_fernet = Fernet(backup_key)
+            
+            # Decrypt and parse accounts
+            decrypted_data = backup_fernet.decrypt(encrypted_data)
+            accounts_data = json.loads(decrypted_data.decode())
+            
+            print(f"✓ Backup decrypted successfully!")
+            print(f"📊 Found {len(accounts_data)} accounts in backup")
+            print()
+            
+            # Show accounts that will be restored
+            print("Accounts in backup:")
+            for account_name in accounts_data.keys():
+                print(f"  • {account_name}")
+            print()
+            
+            # Ask for confirmation
+            choice = input("Do you want to restore these accounts? (y/N): ").strip().lower()
+            if choice not in ['y', 'yes']:
+                print("Restore cancelled")
+                return False
+            
+            # Check for existing accounts
+            existing_accounts = self.storage.list_accounts()
+            conflicts = []
+            for account_name in accounts_data.keys():
+                if account_name in existing_accounts:
+                    conflicts.append(account_name)
+            
+            if conflicts:
+                print(f"⚠️  Warning: {len(conflicts)} accounts already exist:")
+                for account in conflicts:
+                    print(f"  • {account}")
+                print()
+                choice = input("Overwrite existing accounts? (y/N): ").strip().lower()
+                if choice not in ['y', 'yes']:
+                    print("Restore cancelled to avoid overwriting existing accounts")
+                    return False
+            
+            # Restore accounts
+            restored_count = 0
+            failed_count = 0
+            
+            for account_name, account_data in accounts_data.items():
+                try:
+                    secret = account_data['secret']
+                    
+                    # Validate the secret by testing TOTP generation
+                    totp = pyotp.TOTP(secret)
+                    totp.now()  # This will raise an exception if secret is invalid
+                    
+                    # Add/update account
+                    if self.storage.add_account(account_name, secret):
+                        restored_count += 1
+                        print(f"✓ Restored: {account_name}")
+                    else:
+                        failed_count += 1
+                        print(f"✗ Failed to restore: {account_name}")
+                        
+                except Exception as e:
+                    failed_count += 1
+                    print(f"✗ Failed to restore {account_name}: Invalid secret")
+            
+            print()
+            print(f"📊 Restore Summary:")
+            print(f"   ✓ Successfully restored: {restored_count} accounts")
+            if failed_count > 0:
+                print(f"   ✗ Failed to restore: {failed_count} accounts")
+            print()
+            print("🎉 Restore completed!")
+            
+            return restored_count > 0
+            
+        except Exception as e:
+            if "Invalid token" in str(e) or "decrypt" in str(e).lower():
+                print("Error: Incorrect backup password or corrupted backup file")
+            else:
+                print(f"Error restoring backup: {str(e)}")
+            return False
+    
     def generate_codes(self, account_name=None):
         """Generate and display TOTP codes with countdown"""
         try:
@@ -405,6 +530,7 @@ Examples:
   %(prog)s --generate "Google"      Show code for specific account
   %(prog)s --safety-check           Show safety info and removal instructions
   %(prog)s --backup                 Create encrypted backup of all accounts
+  %(prog)s --restore backup.enc     Restore accounts from encrypted backup file
   %(prog)s --remove "Google"        Remove an account (use safety-check first!)
         """
     )
@@ -450,6 +576,12 @@ Examples:
     )
     
     parser.add_argument(
+        '--restore',
+        metavar='BACKUP_FILE',
+        help='Restore accounts from encrypted backup file'
+    )
+    
+    parser.add_argument(
         '--version',
         action='version',
         version='TOTP Authenticator 1.0.0'
@@ -481,6 +613,9 @@ Examples:
             
         elif args.backup is not None:
             auth.backup_accounts(args.backup)
+            
+        elif args.restore:
+            auth.restore_from_backup(args.restore)
             
         elif args.generate is not None:
             if args.generate == 'ALL':

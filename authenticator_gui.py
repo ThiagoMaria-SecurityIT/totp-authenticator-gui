@@ -11,6 +11,8 @@ import time
 import re
 from datetime import datetime
 import pyotp
+import json
+import os
 from storage import SecureStorage
 
 
@@ -33,7 +35,7 @@ class TOTPAuthenticatorGUI:
     def setup_gui(self):
         """Setup the main GUI window and components"""
         self.root.title("TOTP Authenticator")
-        self.root.geometry("600x500")
+        self.root.geometry("750x600")
         self.root.minsize(500, 400)
         self.root.configure(bg="#1a1a1a")  # Dark background
         
@@ -159,6 +161,20 @@ class TOTPAuthenticatorGUI:
         )
         self.backup_btn.grid(row=0, column=2, padx=5)
         
+        self.restore_btn = tk.Button(
+            buttons_frame, 
+            text="📂 Restore", 
+            command=self.restore_dialog,
+            bg="#6f42c1", 
+            fg="white", 
+            font=("Arial", 10, "bold"),
+            padx=20, 
+            pady=8,
+            borderwidth=0,
+            activebackground="#8b5dca"
+        )
+        self.restore_btn.grid(row=0, column=3, padx=5)
+        
         self.safety_btn = tk.Button(
             buttons_frame, 
             text="🔒 Safety Check", 
@@ -171,7 +187,7 @@ class TOTPAuthenticatorGUI:
             borderwidth=0,
             activebackground="#fd7e14"
         )
-        self.safety_btn.grid(row=0, column=3, padx=5)
+        self.safety_btn.grid(row=0, column=4, padx=5)
         
         # Status bar
         self.status_label = tk.Label(
@@ -252,7 +268,7 @@ class TOTPAuthenticatorGUI:
         # Create dialog window
         dialog = tk.Toplevel(self.root)
         dialog.title("Add TOTP Account")
-        dialog.geometry("400x300")
+        dialog.geometry("400x350")
         dialog.configure(bg="#1a1a1a")
         dialog.transient(self.root)
         dialog.grab_set()
@@ -380,7 +396,7 @@ class TOTPAuthenticatorGUI:
         # Create selection dialog
         dialog = tk.Toplevel(self.root)
         dialog.title("Remove Account - SAFETY WARNING")
-        dialog.geometry("500x400")
+        dialog.geometry("500x500")
         dialog.transient(self.root)
         dialog.grab_set()
         
@@ -532,6 +548,143 @@ Use 'Safety Check' button for service-specific instructions.
                 
         except Exception as e:
             messagebox.showerror("Error", f"Backup failed: {str(e)}")
+    
+    def restore_dialog(self):
+        """Show restore dialog to select and restore from backup file"""
+        from tkinter import filedialog, simpledialog
+        
+        # Select backup file
+        backup_file = filedialog.askopenfilename(
+            title="Select Backup File to Restore",
+            filetypes=[
+                ("Encrypted Backup", "*.enc"),
+                ("All Files", "*.*")
+            ],
+            initialdir="."
+        )
+        
+        if not backup_file:
+            return
+        
+        try:
+            # Read and verify backup file
+            with open(backup_file, 'r') as f:
+                backup_data = json.load(f)
+            
+            if 'salt' not in backup_data or 'data' not in backup_data:
+                messagebox.showerror("Error", "Invalid backup file format")
+                return
+            
+            # Show backup info
+            backup_info = f"Backup File: {os.path.basename(backup_file)}\n"
+            if 'created' in backup_data:
+                backup_info += f"Created: {backup_data['created']}\n"
+            if 'accounts' in backup_data:
+                backup_info += f"Accounts: {backup_data['accounts']}"
+            
+            # Ask for confirmation
+            if not messagebox.askyesno(
+                "Restore Backup", 
+                f"{backup_info}\n\nDo you want to restore from this backup?"
+            ):
+                return
+            
+            # Get backup password
+            backup_password = simpledialog.askstring(
+                "Backup Password",
+                "Enter the password used to encrypt this backup:",
+                show='*'
+            )
+            
+            if not backup_password:
+                return
+            
+            # Decrypt and restore
+            import base64
+            from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+            from cryptography.hazmat.primitives import hashes
+            from cryptography.fernet import Fernet
+            
+            # Decode salt and encrypted data
+            backup_salt = base64.b64decode(backup_data['salt'])
+            encrypted_data = base64.b64decode(backup_data['data'])
+            
+            # Derive decryption key
+            kdf = PBKDF2HMAC(
+                algorithm=hashes.SHA256(),
+                length=32,
+                salt=backup_salt,
+                iterations=100000,
+            )
+            backup_key = base64.urlsafe_b64encode(kdf.derive(backup_password.encode()))
+            backup_fernet = Fernet(backup_key)
+            
+            # Decrypt and parse accounts
+            decrypted_data = backup_fernet.decrypt(encrypted_data)
+            accounts_data = json.loads(decrypted_data.decode())
+            
+            # Check for existing accounts
+            existing_accounts = self.storage.list_accounts(self.master_password)
+            conflicts = []
+            for account_name in accounts_data.keys():
+                if account_name in existing_accounts:
+                    conflicts.append(account_name)
+            
+            if conflicts:
+                conflict_msg = f"Warning: {len(conflicts)} accounts already exist:\n"
+                for account in conflicts[:5]:  # Show first 5
+                    conflict_msg += f"• {account}\n"
+                if len(conflicts) > 5:
+                    conflict_msg += f"... and {len(conflicts) - 5} more\n"
+                conflict_msg += "\nOverwrite existing accounts?"
+                
+                if not messagebox.askyesno("Account Conflicts", conflict_msg):
+                    return
+            
+            # Restore accounts
+            restored_count = 0
+            failed_count = 0
+            failed_accounts = []
+            
+            for account_name, account_data in accounts_data.items():
+                try:
+                    secret = account_data['secret']
+                    
+                    # Validate the secret by testing TOTP generation
+                    totp = pyotp.TOTP(secret)
+                    totp.now()  # This will raise an exception if secret is invalid
+                    
+                    # Add/update account
+                    if self.storage.add_account(account_name, secret, self.master_password):
+                        restored_count += 1
+                    else:
+                        failed_count += 1
+                        failed_accounts.append(account_name)
+                        
+                except Exception:
+                    failed_count += 1
+                    failed_accounts.append(account_name)
+            
+            # Show results
+            result_msg = f"Restore completed!\n\n"
+            result_msg += f"✓ Successfully restored: {restored_count} accounts\n"
+            if failed_count > 0:
+                result_msg += f"✗ Failed to restore: {failed_count} accounts\n"
+                if failed_accounts:
+                    result_msg += f"\nFailed accounts: {', '.join(failed_accounts[:3])}"
+                    if len(failed_accounts) > 3:
+                        result_msg += f" and {len(failed_accounts) - 3} more"
+            
+            if restored_count > 0:
+                messagebox.showinfo("Restore Success", result_msg)
+            else:
+                messagebox.showerror("Restore Failed", result_msg)
+                
+        except Exception as e:
+            if "Invalid token" in str(e) or "decrypt" in str(e).lower():
+                messagebox.showerror("Error", "Incorrect backup password or corrupted backup file")
+            else:
+                messagebox.showerror("Error", f"Restore failed: {str(e)}")
     
     def safety_check_dialog(self):
         """Show safety check information"""
