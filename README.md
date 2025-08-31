@@ -211,11 +211,14 @@ All files use restrictive permissions (600) for security.
 - **Example accounts only**: The test accounts provided in this documentation are for demonstration only
 
 ## Troubleshooting issues
-- If you do not enter the correct password when opening this tool, it will open without any account
+- If you do not enter the correct password when (log in) opening this tool, it will open without any account
 - You can find the folder .totp_authenticator searching %USERPROFILE% in your windows
 - The folder .totp_authenticator has the session password, erasing the 2 files will not grant you access to the tool session without password
 - Erase .totp_authenticator only if you backup your current session or you will lost all accounts
  - Backup is the key for any authenticator tool
+- You can only restore the backup if you entered the correct password to log in
+  - Deleting the .totp_authenticator folder will allow you to enter a new log in password and then restore the backups
+    
 
 ## Contributing
 
