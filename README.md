@@ -6,7 +6,9 @@ A desktop GUI application for generating Time-based One-Time Passwords (TOTP) fo
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)  
 
-<img width="855" height="572" alt="image" src="https://github.com/user-attachments/assets/06a895f0-a236-40e8-aa7c-bca4046ae194" />  
+<img width="855" height="572" alt="image" src="https://github.com/user-attachments/assets/06a895f0-a236-40e8-aa7c-bca4046ae194" />    
+
+Image of the Authenticator with two example accounts (see and use example accounts [here](#for-testing-only))  after log in with password    
 
 
 > [!CAUTION]
