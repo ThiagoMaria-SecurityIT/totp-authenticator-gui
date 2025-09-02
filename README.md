@@ -1,253 +1,206 @@
-# TOTP Authenticator GUI
+# 🔐 TOTP Authenticator GUI
 
-A desktop GUI application for generating Time-based One-Time Passwords (TOTP) for two-factor authentication. Built with Python and Tkinter, featuring a modern dark theme and enterprise-grade security.
+A secure, standalone desktop application for managing Time-based One-Time Passwords (TOTP), built with Python and Tkinter. It features a modern dark theme and prioritizes enterprise-grade, local-first security.
 
 ![Python](https://img.shields.io/badge/python-3.7+-blue.svg)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)  
 
-<img width="855" height="572" alt="image" src="https://github.com/user-attachments/assets/06a895f0-a236-40e8-aa7c-bca4046ae194" />    
+<p align="center">
+  <img width="855" alt="TOTP Authenticator GUI" src="https://github.com/user-attachments/assets/06a895f0-a236-40e8-aa7c-bca4046ae194">
+</p>   
 
-Image of the Authenticator with two example accounts (see and use example accounts [here](#for-testing-only))  after log in with password    
+1. Image of the Authenticator with two random example accounts (not real accounts) after logging in with password.  
 
 
 > [!CAUTION]
-> - **NEVER remove accounts from this authenticator without first disabling 2FA on the actual service (Google account, Amazon account, Github account, etc).**  
-> - **Doing so will result in permanent lockout from your accounts.**
-> - **You can use the example accounts [here](#for-testing-only) to test this tool**   
+> **CRITICAL SAFETY WARNING**  
+> - **NEVER** remove an account from this application without **FIRST** disabling 2FA on the service's website (e.g., Google, GitHub).  
+> - Doing so will likely result in **permanent account lockout**.  
 
-> [!WARNING]
-> - The Restore feature erases all the current accounts  
-> - Backup your current accounts before Restore or you will lost them forever  
+## Table of Contents
 
-## Features
+- [Quick Start](#-quick-start)
+- [Features](#-features)
+- [Installation & Setup](#-installation--setup)
+- [Usage Guide](#-usage-guide)
+  - [First-Time Setup](#first-time-setup)
+  - [Adding & Managing Accounts](#adding--managing-accounts)
+  - [Backup & Restore](#backup--restore)
+- [Critical Security Information](#-critical-security-information)
+  - [The Two-Password System](#the-two-password-system)
+  - [Resetting the Application](#resetting-the-application)
+- [For Testing Only](#-for-testing-only)
+- [Supported Services](#-supported-services)
+- [AI Transparency](#-ai-transparency)
+- [Troubleshooting](#-troubleshooting)
+- [Contributing](#-contributing)
+- [License](#-license)
 
-### Core Functionality
-- **Real-time TOTP Generation** - 6-digit codes refreshing every 30 seconds
-- **Multi-Account Support** - Manage unlimited accounts in one secure location
-- **Live Countdown Timer** - Visual progress bar and color-coded time remaining
-- **Cross-Platform** - Works on Windows, macOS, and Linux
+## 🚀 Quick Start
 
-### Security Features
-- **AES Encryption** - All secrets encrypted with PBKDF2 key derivation (100,000 iterations)
-- **Master Password Protection** - Secure access to your authentication codes
-- **Encrypted Backups** - Export accounts with separate password protection
-- **Safety Warnings** - Built-in warnings prevent accidental account lockouts
-- **Local Storage** - No cloud dependencies, all data stays on your device  
-<img width="380" height="350" alt="image" src="https://github.com/user-attachments/assets/edd1a1d7-af4e-4419-b28b-9311b5b16d72" /> <img width="470" height="380" alt="image" src="https://github.com/user-attachments/assets/da8deaed-3073-4433-9663-b58126310d8b" />  
+1.  **Clone & Install:**
+    ```bash
+    git clone https://github.com/ThiagoMaria-SecurityIT/totp-authenticator-gui.git
+    cd totp-authenticator-gui
+    pip install pyotp cryptography
+    ```
+2.  **Run the App:**
+    ```bash
+    python authenticator_gui.py
+    ```
+3.  **First Use:**
+    *   Create a strong Master Password when prompted **(Don't forget it, or you will lose all accounts)**.
+    *   Click **"➕ Add Account"** and use a test account secret to see it work.
 
-  
+## ✨ Features
 
-### User Interface
-- **Modern Dark Theme** - Easy on the eyes with professional appearance
-- **Intuitive Layout** - Clean, organized interface with clear visual hierarchy
-- **Real-time Updates** - Live code generation with smooth countdown animations
-- **Responsive Design** - Scales beautifully on different screen sizes
+*   **Secure Local Storage:** All secrets are encrypted on your local disk using AES-256-GCM and PBKDF2. Nothing is stored in the cloud.
+*   **Master Password Protection:** The application and all live secrets are protected by a single, strong master password.
+*   **Encrypted, Portable Backups:** Export your accounts into a portable, password-protected file that you can store securely anywhere.
+*   **Real-time TOTP Generation:** View multiple 6-digit codes that refresh every 30 seconds, complete with a visual countdown timer.
+*   **Built-in Safety Mechanisms:** The UI includes explicit warnings and multi-step confirmations to prevent accidental account lockouts.
+*   **Modern UI:** A clean, responsive, dark-themed interface that is easy to navigate.
 
-### Safety Features
-- **Safety Check System** - Service-specific removal instructions with direct links
-- **Enhanced Removal Warnings** - Multi-step confirmation prevents accidental deletions
-- **Account Backup System** - Encrypted export functionality before making changes
-
-
-## Requirements
-
-- Python 3.7 or higher
-- Tkinter (included with most Python installations)
-- Required packages:
-  ```
-  pyotp>=2.6.0
-  cryptography>=3.0.0
-  ```
-
-## Installation
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/ThiagoMaria-SecurityIT/totp-authenticator-gui.git
-   cd totp-authenticator-gui
-   ```
-
-2. **Install dependencies:**
-   ```bash
-   pip install pyotp cryptography
-   ```
-
-3. **Run the application:**
-   ```bash
-   python authenticator_gui.py
-   ```
-
-> [!Tip]
-> Yes, you have to run it with "python" and not "py"  
-
-4. **If you prefer you can use the CLI version:***
-   ```bash
-   python authenticator.py
-   ```
-   
-## Usage
-
->[!Tip]
->After click in the Backup button you have to write the password in the CLI too
->Confirm your Backup password in the CLI too  
-
-### ⚠️ CRITICAL WARNING - 🔒 Account Lockout Prevention 🔒   
-
-**Correct procedure:**
-1. Go to the service's security settings, for example Google, Amazon, Github (use our Safety Check feature for links)
-2. Disable 2FA or switch to a different authenticator method at Google, Github or Amazon security settings for MFA or 2FA (disable there first)  
-3. Test that you can log in without this tool
-4. Only then remove the account from this authenticator
-
-> [!CAUTION]
-> - NEVER remove accounts from this authenticator without first disabling 2FA on the actual service (Google, Github, Amazon, etc).  
-> **If you remove an account from this tool first, you may lose access to your account forever.**  
-> **Use example accounts below for demonstration purposes only, never for production**
-
-### First Time Setup
-1. Launch the application
-2. Create a master password when prompted (first-time setup only)
-3. Click **"➕ Add Account"** to add your first TOTP account
-
-### Adding Accounts
-1. Click "Add Account"
-2. Enter a recognizable name (e.g., "Google", "GitHub")
-3. Enter the secret key from your service's 2FA setup
-4. Click "Add Account"
-
-The secret key is the text string you get when setting up 2FA (usually shown alongside the QR code).
-
-### **For Testing Only:🧪**   
-Use these example accounts for demonstration purposes only, never for production:  
-- **Google Test** with secret `JBSWY3DPEHPK3PXP`
-- **GitHub Test** with secret `GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ`
-
-### Managing Accounts
-- **View Codes**: All active codes display automatically with countdown timers
-- **Safety Check**: Click "Safety Check" for removal instructions and service links
-- **Create Backup**: Click "Backup" to export encrypted account data
-- **Remove Account**: Click "Remove" (use Safety Check first!)
-
-### Security Best Practices
-1. **Always use Safety Check** before removing any account
-2. **Create regular backups** of your accounts
-3. **Store backups securely** in a different location
-4. **Use a strong master password** you won't forget
-
-### How to Restore Your Accounts:  
->[!Warning]
-> - The Restore feature erases all current accounts in this tool  
-> - Before restore, **do a backup**  
-> - Merge accounts is not implemented   
-
-🖥️ GUI Method (Easy):
-1. Click "📂 Restore" button in the GUI
-2. Select your backup file (usually named like totp_backup_20241129_143052.enc)
-3. Enter the backup password you used when creating the backup
-4. Confirm the restore - it shows you which accounts will be restored
-   
-Done! Your accounts are back with all their secrets
-
-## Interface Overview
-
-### Main Window
-- **Header**: Dark blue header with application title
-- **Account List**: Real-time TOTP codes with account names
-- **Timer Display**: Shows time remaining until next code generation
-- **Progress Bar**: Visual countdown with color indicators
-- **Control Buttons**: Add, Remove, Backup, Restore and Safety Check functions
-- **Status Bar**: Current application status and account count
-
-### Color Indicators
-- **Green (20-30s)**: Plenty of time remaining
-- **Orange (10-19s)**: Codes expiring soon
-- **Red (0-9s)**: Codes about to expire
-
-### Dialog Windows
-- **Add Account**: Clean form with secret key visibility toggle
-- **Remove Account**: Safety warnings with confirmation requirements
-- **Safety Check**: Service-specific instructions with direct links
-- **Backup Export**: Encrypted backup creation with password protection
-
-## Supported Services
-
-This authenticator works with any service supporting the TOTP standard (RFC 6238), including:
-
-- **Google** (Gmail, Drive, etc.)
-- **GitHub** 
-- **Microsoft** (Office 365, Azure)
-- **Discord**
-- **Amazon Web Services**
-- **Reddit**
-- **Dropbox**
-- **And thousands more...**
-
-## File Structure
-
-```
-totp-authenticator-gui/
-├── authenticator_gui.py      # Main GUI application
-├── storage.py               # Encrypted storage module
-├── authenticator.py         # CLI version (legacy)
-└── README.md               # This file
-```
-
-## Data Storage
-
-- **Configuration**: `~/.totp_authenticator/`
-- **Encrypted Accounts**: `~/.totp_authenticator/accounts.json`
-- **Encryption Salt**: `~/.totp_authenticator/salt.key`
-- **Backups**: Current directory as `totp_backup_YYYYMMDD_HHMMSS.enc`
-
-All files use restrictive permissions (600) for security.
-
-## Important Security Notes
-
-- **Never share your master password** - it protects all your accounts
-- **Keep your secret keys private** - they provide access to your accounts
-- **This tool generates valid codes** but doesn't connect to services directly
-- **CRITICAL: Always disable 2FA on services first** before removing accounts from this tool
-- **Account lockout risk**: Removing accounts from this tool before disabling 2FA on the service will cause permanent lockout
-- **Store backups safely** - they contain all your authentication secrets
-- **Example accounts only**: The test accounts provided in this documentation are for demonstration only
-
-## Troubleshooting issues
-- If you do not enter the correct password when (log in) opening this tool, it will open without any account
-- You can find the folder .totp_authenticator searching %USERPROFILE% in your windows
-- The folder .totp_authenticator has the session password, erasing the 2 files will not grant you access to the tool session without password
-- Erase .totp_authenticator only if you backup your current session or you will lost all accounts
- - Backup is the key for any authenticator tool
-- You can only restore the backup if you entered the correct password to log in
-  - Deleting the .totp_authenticator folder will allow you to enter a new log in password and then restore the backups
-    
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Acknowledgments
-
-- Built with Python's Tkinter for cross-platform compatibility
-- Uses PyOTP for RFC 6238 compliant TOTP generation
-- Cryptography library for enterprise-grade encryption
-- Inspired by popular authenticator apps but with enhanced security features
-
-## Support
-
-For questions, issues, or feature requests:
-- Open an issue on GitHub
-- Check existing documentation
-- Review the Safety Check feature for service-specific guidance
+<p align="center">
+  <img width="380" height="350" alt="Add Account Dialog" src="https://github.com/user-attachments/assets/edd1a1d7-af4e-4419-b28b-9311b5b16d72">
+  <img width="470" height="380" alt="Safety Check Dialog" src="https://github.com/user-attachments/assets/da8deaed-3073-4433-9663-b58126310d8b">
+</p>
 
 ---
 
-**Quick Start**: `python authenticator_gui.py` → Create master password → Add test account → Start generating codes!
+## 🛠️ Installation & Setup
+
+- Follow these steps to set up the project and its dependencies in an isolated environment.   
+- Virtual Environment (venv) is a best practice that prevents conflicts with your system's main Python packages, but it's important to note that this is **not** a security container like Docker.
+
+1.  **Requirements:**
+    *   Python 3.7+
+    *   The `pyotp` and `cryptography` libraries.
+
+2.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/ThiagoMaria-SecurityIT/totp-authenticator-gui.git
+    cd totp-authenticator-gui
+    ```
+
+3.  **Create and Activate a Virtual Environment (Recommended):**
+    This isolates the project's dependencies from your system's global Python installation.
+
+    *   **On Windows:**
+        ```bash
+        # Create the environment
+        python -m venv venv
+        # Activate the environment
+        .\venv\Scripts\activate
+        ```
+
+    *   **On macOS & Linux:**
+        ```bash
+        # Create the environment
+        python3 -m venv venv
+        # Activate the environment
+        source venv/bin/activate
+        ```
+    > Your terminal prompt should now be prefixed with `(venv)`, indicating the environment is active.
+
+4.  **Install Dependencies:**
+    With the virtual environment active, install the required packages.
+    ```bash
+    pip install pyotp cryptography
+    ```
+
+5.  **Run the Application:**
+    ```bash
+    # For the GUI version
+    python authenticator_gui.py
+
+    # For the command-line version
+    python authenticator.py
+    ```  
+
+> [!TIP]  
+> - On some systems, you may need to use `python3` instead of `python`.  
+> - The `py` command is specific to Windows and may not work, use `python authenticator.py`.      
+
+    
+## 📖 Usage Guide
+
+### First-Time Setup
+The first time you launch the application, you will be prompted to create a **Master Password**. This password encrypts your local vault and is required every time you open the app.
+
+### Adding & Managing Accounts
+*   **Add Account:** Click **"➕ Add Account"**, provide a name, and paste the Base32 secret key from your service provider.
+*   **Safety Check:** Before removing an account, click **"🔒 Safety Check"** for service-specific instructions and direct links to disable 2FA on their website.
+*   **Remove Account:** After disabling 2FA on the service's website, use the **"🗑️ Remove"** button to safely delete the entry from this tool.
+
+### Backup & Restore
+> [!WARNING]
+> The **Restore** feature completely overwrites all accounts currently in the application. **Always create a fresh backup before restoring** if you have live data you don't want to lose.
+
+*   **Create Backup:** Click **"💾 Backup"**. You will be prompted (in the command line) to create a **Backup Password**. This encrypts your accounts into a `.enc` file you can save anywhere.
+*   **Restore from Backup:** Click **"📂 Restore"**, select your `.enc` backup file, and enter the specific **Backup Password** you used to create it.
+
+## ‼️ Critical Security Information
+
+### The Two-Password System
+This application uses two distinct types of passwords. Understanding the difference is essential.
+
+1.  **Master Password:**
+    *   **Purpose:** Unlocks the application for daily use.
+    *   **Protects:** The live `accounts.json` file stored on your computer.
+    *   **If Lost:** You are locked out of the live app. You must reset the application to regain access.
+
+2.  **Backup Password:**
+    *   **Purpose:** Encrypts and decrypts a specific backup file (`.enc`).
+    *   **Protects:** Your portable backup files. You can have different passwords for different backups.
+    *   **If Lost:** That specific backup file is permanently unusable.
+
+### Resetting the Application
+If you forget your **Master Password**, you can reset the application.
+
+1.  **Locate the configuration folder:** `~/.totp_authenticator/` (On Windows, search for `%USERPROFILE%\.totp_authenticator`).
+2.  **IMPORTANT:** Check this folder for any backup files you may have accidentally saved there. Move them to a safe location.
+3.  **Delete the contents** of the `.totp_authenticator` folder (specifically `accounts.json` and `salt.key`).
+4.  Relaunch the application. You will be prompted to create a new Master Password.
+5.  You can now restore your accounts from a backup file using its **Backup Password**.
+
+## 🧪 For Testing Only
+To safely test the application's features, use these non-production secrets:
+*   **Google Test:** `JBSWY3DPEHPK3PXP`
+*   **GitHub Test:** `GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ`
+
+## 🌐 Supported Services
+This tool works with any service that supports the TOTP standard (RFC 6238), including Google, GitHub, Microsoft, Discord, AWS, and thousands more.
+
+## 🤖 AI Transparency
+This tool was developed with the assistance of an AI, which helped generate boilerplate code and refine logic. All code was reviewed, validated, and structured by a human developer to meet security and functionality standards. If using this in a corporate environment, please adhere to your company's policies regarding AI-assisted tools.
+
+## 🔧 Troubleshooting
+*   **Incorrect Master Password:** If you enter the wrong password, the app will open but will appear empty. Close and try again.
+*   **Cannot Restore Backup:** Ensure you are using the correct **Backup Password**, not the Master Password.
+*   **Forgetting Master Password:** Follow the reset procedure outlined in the [Critical Security Information](#-critical-security-information) section.
+
+## 🤝 Contributing
+Contributions are welcome! Please fork the repository, create a feature branch, and open a pull request.
+
+## 📜 License
+This project is licensed under the MIT License.  
+
+## About Me & Contact
+
+**Thiago Maria - From Brazil to the World 🌎**  
+*Senior Security Information Professional | Passionate Programmer | AI Developer*
+
+With a professional background in security analysis and a deep passion for programming, I created this Github acc to share some knowledge about security information, cybersecurity, Python and AI development practices. Most of my work here focuses on implementing security-first at companies and developer tools while maintaining usability and productivity.
+
+Let's Connect:  
+
+👇🏽 Click on the badges below and msg me if you want to know how AI found "example accounts" for this project:   
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue)](https://www.linkedin.com/in/thiago-cequeira-99202239/)  
+[![Hugging Face](https://img.shields.io/badge/🤗Hugging_Face-AI_projects-yellow)](https://huggingface.co/ThiSecur)  
+ 
+## Ways to Contribute:   
+ Want to see more upgrades? Help me keep it updated!    
+ [![Sponsor](https://img.shields.io/badge/Sponsor-%E2%9D%A4-red)](https://github.com/sponsors/ThiagoMaria-SecurityIT) 
